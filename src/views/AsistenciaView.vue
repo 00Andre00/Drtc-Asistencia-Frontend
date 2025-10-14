@@ -5,28 +5,38 @@
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
           <h1 class="text-xl font-bold text-gray-900">Sistema de Asistencias</h1>
-          <div class="flex space-x-4">
+          <div class="flex items-center space-x-4">
+            <!-- Botones de navegación -->
+            <div class="flex space-x-2">
+              <button
+                @click="vistaActiva = 'asistencia'"
+                :class="[
+                  'px-4 py-2 rounded-md font-medium transition-colors',
+                  vistaActiva === 'asistencia' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ]"
+              >
+                Marcación
+              </button>
+              <button
+                @click="vistaActiva = 'justificacion'"
+                :class="[
+                  'px-4 py-2 rounded-md font-medium transition-colors',
+                  vistaActiva === 'justificacion' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ]"
+              >
+                Justificación
+              </button>
+            </div>
+            <!-- Botón de logout -->
             <button
-              @click="vistaActiva = 'asistencia'"
-              :class="[
-                'px-4 py-2 rounded-md font-medium transition-colors',
-                vistaActiva === 'asistencia' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              ]"
+              @click="logout"
+              class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm font-medium transition-colors"
             >
-              Marcación
-            </button>
-            <button
-              @click="vistaActiva = 'justificacion'"
-              :class="[
-                'px-4 py-2 rounded-md font-medium transition-colors',
-                vistaActiva === 'justificacion' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              ]"
-            >
-              Justificación
+              Cerrar Sesión
             </button>
           </div>
         </div>
@@ -163,9 +173,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAsistenciaStore } from '@/stores/asistencia'
+import { useAuthStore } from '@/stores/auth' // ← AGREGAR ESTA IMPORTACIÓN
 
+const router = useRouter()
 const asistenciaStore = useAsistenciaStore()
+const authStore = useAuthStore() // ← AGREGAR ESTA LÍNEA
 
 const vistaActiva = ref<'asistencia' | 'justificacion'>('asistencia')
 const dni = ref('')
@@ -184,6 +198,14 @@ const videoRef = ref<HTMLVideoElement>()
 const canvasRef = ref<HTMLCanvasElement>()
 const stream = ref<MediaStream>()
 let timeoutNotificacion: any = null
+
+// Función de logout - CORREGIDA
+const logout = () => {
+  if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+    authStore.logout()
+    router.push('/')
+  }
+}
 
 // Mostrar notificación
 const mostrarNotificacion = (tipo: 'exito' | 'error', titulo: string, mensaje: string) => {
